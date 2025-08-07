@@ -203,7 +203,7 @@ int convertor(const char *command, Vr **variables) {
     return 666; // Unknown command
 }
 
-Node* slasher(const char *command, Vr **variables) {
+Node* Jack(const char *command, Vr **variables) {
     Node *head = NULL, *tail = NULL;
     char token[100];
     char imp_token[100];
@@ -309,7 +309,7 @@ int main() {
     char buffer[100];  // buffer to hold each line
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         buffer[strcspn(buffer, "\n")] = 0;
-        Node *tokens = slasher(buffer,&variables);
+        Node *tokens = Jack(buffer,&variables);
         Bracket_Operator(&tokens);
         arithmetic(&tokens);
         Node *cur = tokens;
