@@ -1,5 +1,0 @@
-show 123
-show I
-help
-clear
-exit

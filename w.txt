@@ -1,0 +1,2 @@
+clear help show 3 * 5
+show 12 / 8 show 665 + 1

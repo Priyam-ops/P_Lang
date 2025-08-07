@@ -9,6 +9,89 @@ typedef struct Node {
     struct Node* prev;
 } Node;
 
+void arithmetic(Node** head) {
+    Node* current = *head;
+    while (current) {
+        if (current->data == -6) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev +  next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        if (current->data == -7) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev - next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        if (current->data == -8) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev * next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        if (current->data == -9) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            if (next == 0) {
+                printf("Division by zero error\n");
+                current = current->next;
+                continue;
+            }
+            int sum = prev / next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        current = current->next;
+    }
+}
 
 
 int convertor(const char *command) {
@@ -93,16 +176,18 @@ int main() {
         command[strcspn(command, "\n")] = 0;
 
         Node *tokens = slasher(command);
+        arithmetic(&tokens);
 
         Node *cur = tokens;
         int exit_flag = 0;
         while (cur) {
-            if (cur->data >= -4 && cur->data <= -1) {
+            if (cur->data >= -5 && cur->data <= -1) {
                 switch (cur->data) {
                     case -1: cur=show(cur);                                                                       break; // show
                     case -2: printf("my devs don't work hard enough to make this\n");                                        break; // clear
                     case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
                     case -4: printf("Exiting...Bye!!\n"); return 0;               break; // exit
+                    case -5: printf("Taking input...\n"); break; // take
                 }
             }
             else 
