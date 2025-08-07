@@ -1,1 +1,1 @@
-clear show 3 + 3 / 3 * 6 - 3
+take a b is 45 show a + b 
