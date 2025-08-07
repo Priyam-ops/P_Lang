@@ -30,66 +30,6 @@ void arithmetic(Node** head) {
             if (current->next->next != NULL)
                 current->next->next->prev = new;
         }
-        if (current->data == -7) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            int sum = prev - next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
-        if (current->data == -8) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            int sum = prev * next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
-        if (current->data == -9) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            if (next == 0) {
-                printf("Division by zero error\n");
-                current = current->next;
-                continue;
-            }
-            int sum = prev / next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
-        current = current->next;
     }
 }
 

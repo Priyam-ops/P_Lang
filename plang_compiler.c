@@ -12,60 +12,6 @@ typedef struct Node {
 void arithmetic(Node** head) {
     Node* current = *head;
     while (current) {
-        if (current->data == -6) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            int sum = prev +  next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
-        if (current->data == -7) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            int sum = prev - next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
-        if (current->data == -8) {
-            int prev , next;
-            prev = next = 0;
-            if (current->prev->data > 0) {
-                prev = current->prev->data;
-            }
-            if (current->next->data > 0) {
-                next = current->next->data;
-            }
-            int sum = prev * next;
-            Node *new = malloc(sizeof(Node));
-            new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
-        }
         if (current->data == -9) {
             int prev , next;
             prev = next = 0;
@@ -91,13 +37,113 @@ void arithmetic(Node** head) {
         }
         current = current->next;
     }
+    current = *head;
+    while (current) {
+        if (current->data == -8) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev *  next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        current = current->next;
+    }
+    current = *head;
+    while (current) {
+        if (current->data == -6) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev +  next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        current = current->next;
+    }
+    current = *head;
+    while (current) {
+        if (current->data == -7) {
+            int prev , next;
+            prev = next = 0;
+            if (current->prev->data > 0) {
+                prev = current->prev->data;
+            }
+            if (current->next->data > 0) {
+                next = current->next->data;
+            }
+            int sum = prev -  next;
+            Node *new = malloc(sizeof(Node));
+            new->data = sum;
+            new->prev = current->prev->prev;
+            new->next = current->next->next;
+            current->prev->prev->next = new;
+            if (current->next->next != NULL)
+                current->next->next->prev = new;
+        }
+        current = current->next;
+    }
 }
 
 
+void Bracket_Operator(Node** head)
+{
+    Node *current = *head;
+    while (current)
+    {
+        if (current->data == -10) { // '('
+            Node *temp = current->next;
+            while (temp && temp->data != -11) { 
+                temp = temp->next;
+            }
+            if (temp == NULL) {
+                printf("Error: Unmatched '(' found.\n");
+                return;
+            }
+            else{
+                Node *pointer = NULL;
+                if (temp->next!=NULL)
+                {
+                    pointer = temp->next;
+                    temp->next = NULL;
+                }
+                arithmetic(&current);
+                while (current->next != NULL) {
+                    current = current->next;
+                }
+                current->next = pointer; // Link the rest of the list
+            }
+        }
+            
+        current = current->next;
+    }
+}
+
+
+
 int convertor(const char *command) {
-    // Command tokens
-    const char *tokens[] = {"","show", "clear", "help", "exit","take","+", "-", "*", "/", ","};
-    int num_tokens = 10;
+    const char *tokens[] = {"","show", "clear", "help", "exit","take","+", "-", "*", "/", "(",")"};
+    int num_tokens = 12;
     char number[] = "0123456789";
 
     // Match known tokens
@@ -177,6 +223,7 @@ int main() {
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         buffer[strcspn(buffer, "\n")] = 0;
         Node *tokens = slasher(buffer);
+        Bracket_Operator(&tokens);
         arithmetic(&tokens);
         Node *cur = tokens;
         while (cur) {

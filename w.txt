@@ -1,2 +1,1 @@
-clear help show 3 * 5
-show 12 / 8 show 665 + 1
+clear show 3 + 3 / 3 * 6 - 3
