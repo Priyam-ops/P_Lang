@@ -6,6 +6,7 @@
 
 typedef struct Node {
     int data;                  // Encoded token or number
+    char *text;             // Optional text for string tokens
     struct Node* next;
     struct Node* prev;
 } Node;
@@ -16,7 +17,6 @@ typedef struct Variable{
     char symbol[100];
     struct Variable* next;
 } Vr;
-
 
 void assignment(int token, char symbol[100], Vr **variables) {
     Vr *new = malloc(sizeof(Vr));
@@ -58,6 +58,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev / next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -80,6 +81,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev *  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -102,6 +104,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev +  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -124,6 +127,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev -  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -141,7 +145,7 @@ void Bracket_Operator(Node** head)
     Node *current = *head;
     while (current)
     {
-        if (current->data == -10) { // '('
+        if (current->data == -10) {  // '('
             Node *temp = current->next;
             while (temp && temp->data != -11) { 
                 temp = temp->next;
@@ -178,6 +182,7 @@ void Sundowner(Node** head)
                int stuff = -19;
                if (current->prev->data == current->next->data){
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -189,6 +194,7 @@ void Sundowner(Node** head)
                 else {
                     stuff = -20;
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -206,6 +212,7 @@ void Sundowner(Node** head)
                int stuff = -19;
                if (current->prev->data > current->next->data){
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -217,6 +224,7 @@ void Sundowner(Node** head)
                 else {
                     stuff = -20;
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -234,6 +242,7 @@ void Sundowner(Node** head)
                int stuff = -19;
                if (current->prev->data < current->next->data){
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -245,6 +254,7 @@ void Sundowner(Node** head)
                 else {
                     stuff = -20;
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -262,6 +272,7 @@ void Sundowner(Node** head)
                int stuff = -19;
                if (current->prev->data != current->next->data){
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -273,6 +284,7 @@ void Sundowner(Node** head)
                 else {
                     stuff = -20;
                     Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
                     new->data = stuff;
                     new->prev = current->prev->prev;
                     new->next = current->next->next;
@@ -289,7 +301,7 @@ void Sundowner(Node** head)
     }
 }
 
-int convertor(const char *command, Vr **variables) {
+int Sam(const char *command, Vr **variables) {
     const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no"};
     int num_tokens = 21;
     char number[] = "0123456789";
@@ -307,13 +319,22 @@ int convertor(const char *command, Vr **variables) {
         if (strcmp(command, tokens[i]) == 0)
             return i*(-1);  // return token code [0..8]
     }
-    int c = 0;
+    int is_num;
+    int c = 0; 
     for (int i = 0; i < strlen(command); i++) {
+        is_num = 0;
         for (int j = 0; j < strlen(number); j++) {
             if (command[i] == number[j]) {
+                is_num = 1;
                 c = c*10 + (command[i] - '0');
                 continue;
             }
+            if (command[i] == '+') {
+                is_num = 1;
+            }
+        }
+        if (!is_num) {
+            return -666;
         }
     }
     if (c != 666)
@@ -323,18 +344,21 @@ int convertor(const char *command, Vr **variables) {
 
 Node* Jack(const char *command, Vr **variables) {
     Node *head = NULL, *tail = NULL;
-    char token[100];
+    char token[100],new_string[100];
+    char *text;
     char imp_token[100];
     int input = 0;
     int assign = 0;
+    int is_str = 0;
     char last_symbol[100];
     int i = 0, j = 0;
     while (1) {
         char c = command[i];
         if (c == ' ' ||  c == '\0') {
             if (j > 0) {
+                text = NULL;
                 token[j] = '\0';
-                int val = convertor(token, variables);
+                int val = Sam(token, variables);
                 if (input) 
                 {
                     input = 0;
@@ -373,11 +397,12 @@ Node* Jack(const char *command, Vr **variables) {
                     assign = 0;
                     assignment(val, imp_token, variables);
                 }
-                if (val == 666) {
-                    printf("Unknown command: %s\n", token);
+                if (val == -666) {
+                    text = strdup(token);
                 }
                 
                 Node *node = malloc(sizeof(Node));
+                node->text = text;
                 node->data = val;
                 node->next = NULL;
                 node->prev = tail;
@@ -403,10 +428,26 @@ Node* Jack(const char *command, Vr **variables) {
     return head;
 }
 
+int doc(Node** head)
+{
+    if ((*head)->next )
+    {
+        if ((*head)->next->data == -19)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 Node* show(Node* head)
 {
     head = head->next;
-    if (head->data == -19){
+    if (head->data == -666)
+    {
+        printf("%s\n", head->text);
+    }
+    else if (head->data == -19){
         printf("yes\n");
     }
     else if (head->data == -20){
@@ -421,11 +462,13 @@ Node* show(Node* head)
 
 
 int main() {
-
+    int exit_status = 0;
+    int exited_if = 0;
+    int if_true = 1;
     Vr *variables = malloc(sizeof(Vr));
     variables->next = NULL;
     variables->value = -50;
-    char command[200] , wtf[100];
+    char wtf[100];
     scanf("%s", wtf);
     FILE *file = fopen(wtf, "r");
     if (file == NULL) {
@@ -448,7 +491,26 @@ int main() {
                     case -2: printf("\e[1;1H\e[2J");                                       break; // clear
                     case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
                     case -4: printf("Exiting...Bye!!\n"); return 0;               break; // exit
+                    case -13:if (doc(&cur)){ 
+                                if_true = 0;
+                                cur = cur->next; 
+                                continue; 
+                            } else {
+                                exit_status = 1;
+                            }
+                            break; 
+                    case -14:if (if_true) {
+                                if_true = 1; 
+                                exited_if = 0;
+                                cur = cur->next;
+                                continue;
+                            } else exit_status = 1;
                 }
+            }
+            if (exit_status) {
+                exit_status = 0;
+                exited_if = 1;
+                break;
             }
             cur = cur->next;
         }

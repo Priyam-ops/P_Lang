@@ -1,1 +1,12 @@
-
+show Enter _the_first_number:
+take a
+show Enter_the_second_number:
+take b
+show Do_whatever_you_want:
+take o
+if o = 1 show a + b
+if o = 2 show a - b
+if o = 3 show a * b
+if o = 4 show a / b
+else show You_are_not_interested!!
+exit
