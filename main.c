@@ -6,6 +6,7 @@
 
 typedef struct Node {
     int data;                  // Encoded token or number
+    char *text;             // Optional text for string tokens
     struct Node* next;
     struct Node* prev;
 } Node;
@@ -58,6 +59,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev / next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -80,6 +82,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev *  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -102,6 +105,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev +  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -124,6 +128,7 @@ void arithmetic(Node** head) {
             }
             int sum = prev -  next;
             Node *new = malloc(sizeof(Node));
+            new->text = NULL;
             new->data = sum;
             new->prev = current->prev->prev;
             new->next = current->next->next;
@@ -169,11 +174,139 @@ void Bracket_Operator(Node** head)
     }
 }
 
+void Sundowner(Node** head) 
+{
+    Node *current = *head;
+    while(current){
+        if (current->data == -15) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data == current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -16) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data > current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -17) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data < current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -18) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data != current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        current = current->next;
+    }
+}
 
 
-int convertor(const char *command, Vr **variables) {
-    const char *tokens[] = {"","show", "clear", "help", "exit","is","+", "-", "*", "/", "(",")","take"};
-    int num_tokens = 13;
+
+int Sam(const char *command, Vr **variables) {
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no"};
+    int num_tokens = 21;
     char number[] = "0123456789";
 
     // Check for variable assignmentf
@@ -189,13 +322,22 @@ int convertor(const char *command, Vr **variables) {
         if (strcmp(command, tokens[i]) == 0)
             return i*(-1);  // return token code [0..8]
     }
-    int c = 0;
+    int is_num;
+    int c = 0; 
     for (int i = 0; i < strlen(command); i++) {
+        is_num = 0;
         for (int j = 0; j < strlen(number); j++) {
             if (command[i] == number[j]) {
+                is_num = 1;
                 c = c*10 + (command[i] - '0');
                 continue;
             }
+            if (command[i] == '+') {
+                is_num = 1;
+            }
+        }
+        if (!is_num) {
+            return -666;
         }
     }
     if (c != 666)
@@ -203,20 +345,23 @@ int convertor(const char *command, Vr **variables) {
     return 666; // Unknown command
 }
 
-Node* slasher(const char *command, Vr **variables) {
+Node* Jack(const char *command, Vr **variables) {
     Node *head = NULL, *tail = NULL;
-    char token[100];
+    char token[100],new_string[100];
+    char *text;
     char imp_token[100];
     int input = 0;
     int assign = 0;
+    int is_str = 0;
     char last_symbol[100];
     int i = 0, j = 0;
     while (1) {
         char c = command[i];
         if (c == ' ' ||  c == '\0') {
             if (j > 0) {
+                text = NULL;
                 token[j] = '\0';
-                int val = convertor(token, variables);
+                int val = Sam(token, variables);
                 if (input) 
                 {
                     input = 0;
@@ -255,11 +400,12 @@ Node* slasher(const char *command, Vr **variables) {
                     assign = 0;
                     assignment(val, imp_token, variables);
                 }
-                if (val == 666) {
-                    printf("Unknown command: %s\n", token);
+                if (val == -666) {
+                    text = strdup(token);
                 }
                 
                 Node *node = malloc(sizeof(Node));
+                node->text = text;
                 node->data = val;
                 node->next = NULL;
                 node->prev = tail;
@@ -285,40 +431,82 @@ Node* slasher(const char *command, Vr **variables) {
     return head;
 }
 
+int doc(Node** head)
+{
+    if ((*head)->next )
+    {
+        if ((*head)->next->data == -19)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 Node* show(Node* head)
 {
     head = head->next;
-    printf("%d\n", head->data);
+    if (head->data == -666)
+    {
+        printf("%s\n", head->text);
+    }
+    else if (head->data == -19){
+        printf("yes\n");
+    }
+    else if (head->data == -20){
+        printf("no\n");
+    }
+    else {
+        printf("%d\n", head->data);
+    }
+    
     return head;
 }
 
 int main() {
-    char command[200];
+    int exit_status = 0;
+    int exited_if = 0;
+    int if_true = 1;
+    Vr *variables = malloc(sizeof(Vr));
+    variables->next = NULL;
+    variables->value = -50;
 
+    char buffer[100];  // buffer to hold each line
     while (1) {
-        Vr *variables = malloc(sizeof(Vr));
-        variables->next = NULL;
-        variables->value = -50;
         printf(">>> ");
-        fflush(stdout);
-        if (!fgets(command, sizeof(command), stdin))
-            break;
-        // Remove trailing newline
-        command[strcspn(command, "\n")] = 0;
-
-        Node *tokens = slasher(command, &variables);
+        scanf("%99[^\n]", buffer);
+        Node *tokens = Jack(buffer,&variables);
         Bracket_Operator(&tokens);
         arithmetic(&tokens);
+        Sundowner(&tokens);
         Node *cur = tokens;
-        int exit_flag = 0;
         while (cur) {
-            if (cur->data >= -5 && cur->data <= -1) {
+            if (cur->data <= -1) {
                 switch (cur->data) {
                     case -1: cur=show(cur);                                                                       break; // show
                     case -2: printf("\e[1;1H\e[2J");                                       break; // clear
                     case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
                     case -4: printf("Exiting...Bye!!\n"); return 0;               break; // exit
+                    case -13:if (doc(&cur)){ 
+                                if_true = 0;
+                                cur = cur->next; 
+                                continue; 
+                            } else {
+                                exit_status = 1;
+                            }
+                            break; 
+                    case -14:if (if_true) {
+                                if_true = 1; 
+                                exited_if = 0;
+                                cur = cur->next;
+                                continue;
+                            } else exit_status = 1;
                 }
+            }
+            if (exit_status) {
+                exit_status = 0;
+                exited_if = 1;
+                break;
             }
             cur = cur->next;
         }
@@ -329,8 +517,5 @@ int main() {
             free(tokens);
             tokens = nxt;
         }
-        if (exit_flag) break;
     }
-    printf("Bye!\n");
-    return 0;
 }

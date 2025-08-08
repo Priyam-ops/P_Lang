@@ -302,11 +302,11 @@ void Sundowner(Node** head)
 }
 
 int Sam(const char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no"};
-    int num_tokens = 21;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while"};
+    int num_tokens = 22;
     char number[] = "0123456789";
 
-    // Check for variable assignmentf
+    // Check for variable assignment
     Vr *current = *variables;
     while (current != NULL) {
         if (strcmp(command, current->symbol) == 0) {
@@ -464,6 +464,7 @@ Node* show(Node* head)
 int main() {
     int exit_status = 0;
     int exited_if = 0;
+    int in_while = 0;
     int if_true = 1;
     Vr *variables = malloc(sizeof(Vr));
     variables->next = NULL;
@@ -499,6 +500,15 @@ int main() {
                                 exit_status = 1;
                             }
                             break; 
+                    
+                    case -21: if (doc(&cur)){ 
+                                in_while = 1;
+                                cur = cur->next; 
+                                continue; 
+                            } else {
+                                exit_status = 1;
+                            }
+                            break;
                     case -14:if (if_true) {
                                 if_true = 1; 
                                 exited_if = 0;
@@ -507,10 +517,15 @@ int main() {
                             } else exit_status = 1;
                 }
             }
+            
             if (exit_status) {
                 exit_status = 0;
                 exited_if = 1;
                 break;
+            }
+            if (in_while && cur->next == NULL)
+            {   
+                cur = tokens;
             }
             cur = cur->next;
         }
