@@ -169,11 +169,129 @@ void Bracket_Operator(Node** head)
     }
 }
 
+void Sundowner(Node** head) 
+{
+    Node *current = *head;
+    while(current){
+        if (current->data == -15) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data == current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
 
+        }
+        if (current->data == -16) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data > current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -17) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data < current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -18) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data != current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        current = current->next;
+    }
+}
 
 int convertor(const char *command, Vr **variables) {
-    const char *tokens[] = {"","show", "clear", "help", "exit","is","+", "-", "*", "/", "(",")","take"};
-    int num_tokens = 13;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no"};
+    int num_tokens = 21;
     char number[] = "0123456789";
 
     // Check for variable assignmentf
@@ -288,7 +406,16 @@ Node* Jack(const char *command, Vr **variables) {
 Node* show(Node* head)
 {
     head = head->next;
-    printf("%d\n", head->data);
+    if (head->data == -19){
+        printf("yes\n");
+    }
+    else if (head->data == -20){
+        printf("no\n");
+    }
+    else {
+        printf("%d\n", head->data);
+    }
+    
     return head;
 }
 
@@ -312,6 +439,7 @@ int main() {
         Node *tokens = Jack(buffer,&variables);
         Bracket_Operator(&tokens);
         arithmetic(&tokens);
+        Sundowner(&tokens);
         Node *cur = tokens;
         while (cur) {
             if (cur->data <= -1) {
