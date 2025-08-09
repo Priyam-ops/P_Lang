@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
 typedef struct Node {
     int data;                  // Encoded token or number
     char *text;             // Optional text for string tokens
@@ -19,15 +18,26 @@ typedef struct Variable{
 } Vr;
 
 void assignment(int token, char symbol[100], Vr **variables) {
+    Vr *current = *variables;
+    while(current)
+    {   
+        if(strcmp(current->symbol, symbol) == 0)
+        {
+            current->value = token;
+            return;
+        }
+        current = current->next;
+    }
     Vr *new = malloc(sizeof(Vr));
     new->value = token;
+
     strcpy(new->symbol, symbol);
     new->code = (*variables)->value;  // Check: is this needed?
     (*variables)->value--;
 
     new->next = NULL;
 
-    Vr *current = *variables;
+    current = *variables;
     if (current == NULL || current->next == NULL) {
         // First real variable
         (*variables)->next = new;
@@ -297,13 +307,73 @@ void Sundowner(Node** head)
             }
 
         }
+        if (current->data == -23) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data >= current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
+        if (current->data == -22) { 
+            if (current->prev != NULL && current->next != NULL) {
+               int stuff = -19;
+               if (current->prev->data <= current->next->data){
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+               }
+                else {
+                    stuff = -20;
+                    Node *new = malloc(sizeof(Node));
+                    new->text = NULL;
+                    new->data = stuff;
+                    new->prev = current->prev->prev;
+                    new->next = current->next->next;
+                    current->prev->prev->next = new;
+                    if (current->next->next != NULL){
+                        current->next->next->prev = new;
+                    }
+                }
+                
+            }
+
+        }
         current = current->next;
     }
 }
 
 int Sam(const char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while"};
-    int num_tokens = 22;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">="};
+    int num_tokens = 24;
     char number[] = "0123456789";
 
     // Check for variable assignment
@@ -347,6 +417,9 @@ Node* Jack(const char *command, Vr **variables) {
     char token[100],new_string[100];
     char *text;
     char imp_token[100];
+    int looking_for_operator = 0;
+    int operator = 0;
+    int looking_for_operand = 0;
     int input = 0;
     int assign = 0;
     int is_str = 0;
@@ -359,6 +432,47 @@ Node* Jack(const char *command, Vr **variables) {
                 text = NULL;
                 token[j] = '\0';
                 int val = Sam(token, variables);
+                if (looking_for_operand) {
+                    looking_for_operand = 0;
+                    looking_for_operator = 0;
+                    if (val > 0) {
+                        if (operator == -6) {
+                            Vr *current = *variables;
+                            while (current->next != NULL) {
+                                current = current->next;
+                            }
+                            current->value+=val;
+                        }
+                        if (operator == -7) {
+                            Vr *current = *variables;
+                            while (current->next != NULL) {
+                                current = current->next;
+                            }
+                            current->value-=val;
+                        }
+                        if (operator == -8) {
+                            Vr *current = *variables;
+                            while (current->next != NULL) {
+                                current = current->next;
+                            }
+                            current->value*=val;
+                        }
+                        if (operator == -9&& val!=0) {
+                            Vr *current = *variables;
+                            while (current->next != NULL) {
+                                current = current->next;
+                            }
+                            current->value/=val;
+                        }
+                    }
+                }
+                if (looking_for_operator) {
+                    looking_for_operator = 0;
+                    if (val == -6 || val == -7 || val == -8 || val == -9) {
+                        looking_for_operand = 1;
+                        operator = val;
+                    }
+                }
                 if (input) 
                 {
                     input = 0;
@@ -395,6 +509,7 @@ Node* Jack(const char *command, Vr **variables) {
                 if (assign && val > 0)  // If it's an assignment
                 {
                     assign = 0;
+                    looking_for_operator = 1;
                     assignment(val, imp_token, variables);
                 }
                 if (val == -666) {
@@ -431,7 +546,7 @@ Node* Jack(const char *command, Vr **variables) {
 int doc(Node** head)
 {
     if ((*head)->next )
-    {
+    {   
         if ((*head)->next->data == -19)
         {
             return 1;
@@ -462,6 +577,7 @@ Node* show(Node* head)
 
 
 int main() {
+
     int exit_status = 0;
     int exited_if = 0;
     int in_while = 0;
@@ -525,7 +641,13 @@ int main() {
             }
             if (in_while && cur->next == NULL)
             {   
+                tokens = Jack(buffer,&variables);
+                in_while = 0;
+                Bracket_Operator(&tokens);
+                arithmetic(&tokens);
+                Sundowner(&tokens);
                 cur = tokens;
+                continue;
             }
             cur = cur->next;
         }
