@@ -1,8 +1,9 @@
 #include<stdio.h>
+#include<string.h>
 
 int main()
 {
-    int a = 3, b = 5;
-    printf("%d", a/b);
+    char str[] = "show";
+    printf("%d", strlen(str));
     return 0;
 }

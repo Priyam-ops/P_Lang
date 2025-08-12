@@ -18,8 +18,14 @@ typedef struct Variable{
     struct Variable* next;
 } Vr;
 
+typedef struct TextNode {
+    char *text;
+    int code;
+    char symbol[100];
+    struct TextNode *next;
+} TextNode;
 
-void assignment(int token, char symbol[100], Vr **variables) {
+void BladeWolf(int token, char symbol[100], Vr **variables) {           //Int assignments
     Vr *new = malloc(sizeof(Vr));
     new->value = token;
     strcpy(new->symbol, symbol);
@@ -40,7 +46,7 @@ void assignment(int token, char symbol[100], Vr **variables) {
     }
 }
 
-void arithmetic(Node** head) {
+void arithmetic(Node** head) {                  // Int calculations
     Node* current = *head;
     while (current) {
         if (current->data == -9) {
@@ -141,7 +147,7 @@ void arithmetic(Node** head) {
 }
 
 
-void Bracket_Operator(Node** head)
+void Bracket_Operator(Node** head)              // Bracket handling
 {
     Node *current = *head;
     while (current)
@@ -174,7 +180,7 @@ void Bracket_Operator(Node** head)
     }
 }
 
-void Sundowner(Node** head) 
+void Sundowner(Node** head)                     // Logical operations
 {
     Node *current = *head;
     while(current){
@@ -304,7 +310,7 @@ void Sundowner(Node** head)
 
 
 
-int Sam(const char *command, Vr **variables) {
+int Sam(const char *command, Vr **variables) {  // Tokenization and Int vs string and incre/decre
     const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no"};
     int num_tokens = 21;
     char number[] = "0123456789";
@@ -345,7 +351,7 @@ int Sam(const char *command, Vr **variables) {
     return 666; // Unknown command
 }
 
-Node* Jack(const char *command, Vr **variables) {
+Node* Jack(const char *command, Vr **variables) { // does literally everything else
     Node *head = NULL, *tail = NULL;
     char token[100],new_string[100];
     char *text;
@@ -395,10 +401,10 @@ Node* Jack(const char *command, Vr **variables) {
                     assign = 1;
                 }
                 
-                if (assign && val > 0)  // If it's an assignment
+                if ((assign && val > 0) || (assign && val == -666))  // If it's an assignment
                 {
                     assign = 0;
-                    assignment(val, imp_token, variables);
+                    BladeWolf(val, imp_token, variables);
                 }
                 if (val == -666) {
                     text = strdup(token);
@@ -431,7 +437,7 @@ Node* Jack(const char *command, Vr **variables) {
     return head;
 }
 
-int doc(Node** head)
+int doc(Node** head)                            // Yes/No
 {
     if ((*head)->next )
     {
@@ -443,7 +449,7 @@ int doc(Node** head)
     return 0;
 }
 
-Node* show(Node* head)
+Node* show(Node* head)                          // Print
 {
     head = head->next;
     if (head->data == -666)

@@ -371,12 +371,36 @@ void Sundowner(Node** head)
     }
 }
 
-int Sam(const char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">="};
-    int num_tokens = 24;
+int Sam(char *command, Vr **variables) {
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--"};
+    int num_tokens = 26;
     char number[] = "0123456789";
+    if (command[strlen(command)-1] == '+' && command[strlen(command)-2] == '+') {
+        command[strlen(command)-2] = '\0';
+        Vr *current = *variables;
+        while (current != NULL && strcmp(command, current->symbol) != 0) {
+            current = current->next;
+        }
+        if (current != NULL) {
+            current->value+=1;
+        }
+    }
+
+    if (command[strlen(command)-1] == '-' && command[strlen(command)-2] == '-') {
+        command[strlen(command)-2] = '\0';
+        Vr *current = *variables;
+        while (current != NULL && strcmp(command, current->symbol) != 0) {
+            current = current->next;
+        }
+        if (current != NULL) {
+            current->value-=1;
+        }
+    }
 
     // Check for variable assignment
+
+
+
     Vr *current = *variables;
     while (current != NULL) {
         if (strcmp(command, current->symbol) == 0) {
@@ -432,6 +456,25 @@ Node* Jack(const char *command, Vr **variables) {
                 text = NULL;
                 token[j] = '\0';
                 int val = Sam(token, variables);
+                if (val == -24) {
+                    
+                    Vr *current = *variables;
+                    while (current != NULL && strcmp(current->symbol, last_symbol) != 0) {
+                        current = current->next;
+                    }
+                    if (current != NULL) {
+                        current->value+=1;
+                    }
+                }
+                if (val == -25) { 
+                    Vr *current = *variables;
+                    while (current != NULL && strcmp(current->symbol, last_symbol) != 0) {
+                        current = current->next;
+                    }
+                    if (current != NULL) {
+                        current->value-=1;
+                    }
+                }
                 if (looking_for_operand) {
                     looking_for_operand = 0;
                     looking_for_operator = 0;
@@ -506,14 +549,55 @@ Node* Jack(const char *command, Vr **variables) {
                     assign = 1;
                 }
                 
-                if (assign && val > 0)  // If it's an assignment
+                if ((assign && val > 0) || (assign && val == -666))  // If it's an assignment
                 {
                     assign = 0;
                     looking_for_operator = 1;
+                    if (val == -666) {
+                        char new_string[100];
+                        char *l = new_string;
+                        char *n = imp_token;
+                        while (*n!= '\0')
+                        {
+                            *l = *n;
+                            l++;
+                            n++;
+                        }
+                        *l = ' ';
+                        l++;
+                        n = token;
+                        while (*n!= '\0')
+                        {
+                            *l = *n;
+                            l++;
+                            n++;
+                        }
+                        *l = '\0';
+                        assignment(val, new_string, variables);
+                    }
                     assignment(val, imp_token, variables);
                 }
                 if (val == -666) {
                     text = strdup(token);
+                    Vr *current = *variables;
+                    while (current != NULL) {
+                        int match = 1;
+                        int m_ind = 0;
+                        for (int k = 0; token[k] != '\0'; k++) {
+                            if(current->symbol[k] != token[k]){
+                                match = 0;
+                                m_ind = k+1;
+                            }
+                        }
+                        m_ind+=2;
+                        if (match) {
+                            for (int k=m_ind; k<strlen(current->symbol); k++) {
+                                text[k-m_ind] = current->symbol[k];
+                            }
+                            text[strlen(current->symbol)-m_ind] = '\0';
+                        }
+                        current = current->next;
+                    }
                 }
                 
                 Node *node = malloc(sizeof(Node));

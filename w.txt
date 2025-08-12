@@ -1,4 +1,5 @@
-show Enter _the_first_number:
+clear
+show Enter_the_first_number:
 take a
 show Enter_the_second_number:
 take b
