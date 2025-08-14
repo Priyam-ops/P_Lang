@@ -676,70 +676,103 @@ int main() {
         printf("Error opening file\n");
         return 1;  // or handle the error
     }
-    char buffer[100];  // buffer to hold each line
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        buffer[strcspn(buffer, "\n")] = 0;
-        Node *tokens = Jack(buffer,&variables);
-        Bracket_Operator(&tokens);
-        arithmetic(&tokens);
-        Sundowner(&tokens);
-        Node *cur = tokens;
-        while (cur) {
-            if (cur->data <= -1) {
-                switch (cur->data) {
-                    case -1: cur=show(cur);                                                                       break; // show
-                    case -2: printf("\e[1;1H\e[2J");                                       break; // clear
-                    case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
-                    case -4: printf("Exiting...Bye!!\n"); return 0;               break; // exit
-                    case -13:if (doc(&cur)){ 
-                                if_true = 0;
-                                cur = cur->next; 
-                                continue; 
-                            } else {
-                                exit_status = 1;
-                            }
-                            break; 
-                    
-                    case -21: if (doc(&cur)){ 
-                                in_while = 1;
-                                cur = cur->next; 
-                                continue; 
-                            } else {
-                                exit_status = 1;
-                            }
-                            break;
-                    case -14:if (if_true) {
-                                if_true = 1; 
-                                exited_if = 0;
-                                cur = cur->next;
-                                continue;
-                            } else exit_status = 1;
-                }
-            }
-            
-            if (exit_status) {
-                exit_status = 0;
-                exited_if = 1;
-                break;
-            }
-            if (in_while && cur->next == NULL)
-            {   
-                tokens = Jack(buffer,&variables);
-                in_while = 0;
-                Bracket_Operator(&tokens);
-                arithmetic(&tokens);
-                Sundowner(&tokens);
-                cur = tokens;
-                continue;
-            }
-            cur = cur->next;
-        }
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    // Allocate buffer for entire file content
+    char *full_content = malloc(file_size + 1);
+    if (full_content == NULL) {
+        printf("Memory allocation failed\n");
+        fclose(file);
+        return 1;
+    } 
 
-        // Free memory
-        while (tokens) {
-            Node* nxt = tokens->next;
-            free(tokens);
-            tokens = nxt;
+    // Read entire file content
+    fread(full_content, 1, file_size, file);
+    full_content[file_size] = '\0';
+    fclose(file);
+    
+    // Replace newlines with spaces to combine all lines
+    for (int i = 0; i < file_size; i++) {
+        if (full_content[i] == '\n') {
+            full_content[i] = ' ';
         }
+    }
+    
+    // Process the entire content as one unit
+    Node *tokens = Jack(full_content, &variables);
+    
+    Bracket_Operator(&tokens);
+    arithmetic(&tokens);
+    Sundowner(&tokens);
+    
+    Node *cur = tokens;
+    while (cur) {
+        if (cur->data <= -1) {
+            switch (cur->data) {
+                case -1: cur=show(cur);                                                                       break; // show
+                case -2: printf("\e[1;1H\e[2J");                                       break; // clear
+                case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
+                case -4: printf("Exiting...Bye!!\n"); 
+                        free(full_content);
+                        // Free memory
+                        while (tokens) {
+                            Node* nxt = tokens->next;
+                            free(tokens);
+                            tokens = nxt;
+                        }
+                        return 0;               break; // exit
+                case -13:if (doc(&cur)){ 
+                            if_true = 0;
+                            cur = cur->next; 
+                            continue; 
+                        } else {
+                            exit_status = 1;
+                        }
+                        break; 
+                
+                case -21: if (doc(&cur)){ 
+                            in_while = 1;
+                            cur = cur->next; 
+                            continue; 
+                        } else {
+                            exit_status = 1;
+                        }
+                        break;
+                case -14:if (if_true) {
+                            if_true = 1; 
+                            exited_if = 0;
+                            cur = cur->next;
+                            continue;
+                        } else exit_status = 1;
+            }
+        }
+        
+        if (exit_status) {
+            exit_status = 0;
+            exited_if = 1;
+            break;
+        }
+        if (in_while && cur->next == NULL)
+        {   
+            tokens = Jack(full_content, &variables);
+            in_while = 0;
+            Bracket_Operator(&tokens);
+            arithmetic(&tokens);
+            Sundowner(&tokens);
+            cur = tokens;
+            continue;
+        }
+        cur = cur->next;
+    }
+
+    // Free memory
+    free(full_content);
+    while (tokens) {
+        Node* nxt = tokens->next;
+        free(tokens);
+        tokens = nxt;
     }
 }
