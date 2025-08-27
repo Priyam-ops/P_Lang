@@ -1,0 +1,75 @@
+{
+  "Variable Assignment": {
+    "prefix": "var",
+    "body": [
+      "${1:variable} is ${2:value}"
+    ],
+    "description": "Create a variable assignment"
+  },
+  "Show Statement": {
+    "prefix": "show",
+    "body": [
+      "show ${1:value}"
+    ],
+    "description": "Display a value"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition}",
+      "    ${2:// code here}",
+      "else",
+      "    ${3:// else code here}"
+    ],
+    "description": "Create an if-else statement"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}",
+      "    ${2:// loop code here}"
+    ],
+    "description": "Create a while loop"
+  },
+  "Take Input": {
+    "prefix": "take",
+    "body": [
+      "take ${1:variable}"
+    ],
+    "description": "Get user input into a variable"
+  },
+  "Basic Program": {
+    "prefix": "program",
+    "body": [
+      "// PLang Program",
+      "",
+      "// Variables",
+      "${1:x} is ${2:10}",
+      "${3:y} is ${4:20}",
+      "",
+      "// Calculation", 
+      "${5:result} is ${1:x} + ${3:y}",
+      "",
+      "// Output",
+      "show ${5:result}"
+    ],
+    "description": "Basic PLang program template"
+  },
+  "Arithmetic Expression": {
+    "prefix": "calc",
+    "body": [
+      "${1:result} is ${2:a} ${3|+,-,*,/|} ${4:b}"
+    ],
+    "description": "Arithmetic calculation"
+  },
+  "Comparison": {
+    "prefix": "compare",
+    "body": [
+      "if ${1:a} ${2|>,<,=,>=,<=,!=|} ${3:b}",
+      "    ${4:// condition true}",
+      "else", 
+      "    ${5:// condition false}"
+    ],
+    "description": "Comparison statement"
+  }
+}

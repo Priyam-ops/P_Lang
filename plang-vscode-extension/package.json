@@ -1,0 +1,62 @@
+{
+  "name": "plang-language-support",
+  "displayName": "PLang Language Support",
+  "description": "Syntax highlighting and language support for PLang programming language",
+  "version": "1.0.0",
+  "publisher": "plang-dev",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "plang",
+    "interpreter",
+    "custom language"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "plang",
+        "aliases": [
+          "PLang",
+          "plang"
+        ],
+        "extensions": [
+          ".pl",
+          ".plang"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/plang-light.png",
+          "dark": "./icons/plang-dark.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "plang",
+        "scopeName": "source.plang",
+        "path": "./syntaxes/plang.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "plang",
+        "path": "./snippets/plang.json"
+      }
+    ]
+  },
+  "scripts": {
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^2.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/plang-vscode-extension"
+  },
+  "license": "MIT"
+}

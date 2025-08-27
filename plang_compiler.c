@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <conio.h>
 
 typedef struct Node {
     int data;                  // Encoded token or number
@@ -16,12 +16,6 @@ typedef struct Variable{
     char symbol[100];
     struct Variable* next;
 } Vr;
-
-typedef struct Stack{
-    int data;
-    struct Stack *next;
-} stack;
-
 
 void assignment(int token, char symbol[100], Vr **variables) {
     Vr *current = *variables;
@@ -378,8 +372,8 @@ void Sundowner(Node** head)
 }
 
 int Sam(char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--"};
-    int num_tokens = 26;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--",/*26*/"until"};
+    int num_tokens = 27;
     char number[] = "0123456789";
     if (command[strlen(command)-1] == '+' && command[strlen(command)-2] == '+') {
         command[strlen(command)-2] = '\0';
@@ -527,7 +521,19 @@ Node* Jack(const char *command, Vr **variables) {
                     input = 0;
                     Vr *new = malloc(sizeof(Vr));
                     strcpy(new->symbol, token);
-                    scanf("%d", &new->value);
+                    
+                    // Flush output and get user input properly
+                    printf("Enter value for %s: ", token);
+                    fflush(stdout);
+                    
+                    // Use direct console input to avoid redirection issues
+                    char input_buffer[100];
+                    if (fgets(input_buffer, sizeof(input_buffer), stdin)) {
+                        new->value = atoi(input_buffer);
+                    } else {
+                        new->value = 0;
+                    }
+                    
                     new->code = (*variables)->value;
                     (*variables)->value--;
 
@@ -666,7 +672,7 @@ Node* show(Node* head)
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
 
     int exit_status = 0;
     int exited_if = 0;
@@ -675,8 +681,18 @@ int main() {
     Vr *variables = malloc(sizeof(Vr));
     variables->next = NULL;
     variables->value = -50;
+    
     char wtf[100];
-    scanf("%s", wtf);
+    if (argc > 1) {
+        // Filename provided as command line argument
+        strcpy(wtf, argv[1]);
+    } else {
+        // Filename provided via stdin (for backward compatibility)
+        printf("Enter filename: ");
+        fflush(stdout);
+        scanf("%s", wtf);
+    }
+    
     FILE *file = fopen(wtf, "r");
     if (file == NULL) {
         printf("Error opening file\n");
