@@ -746,7 +746,9 @@ int main() {
                             exited_if = 0;
                             cur = cur->next;
                             continue;
-                        } else exit_status = 1;
+                        } else {
+                            exit_status = 1;
+                        }
             }
         }
         

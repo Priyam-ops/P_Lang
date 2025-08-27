@@ -17,6 +17,12 @@ typedef struct Variable{
     struct Variable* next;
 } Vr;
 
+typedef struct Stack{
+    int data;
+    struct Stack *next;
+} stack;
+
+
 void assignment(int token, char symbol[100], Vr **variables) {
     Vr *current = *variables;
     while(current)
@@ -724,6 +730,7 @@ int main() {
             }
             if (in_while && cur->next == NULL)
             {   
+                printf("Fuck off!!");
                 tokens = Jack(buffer,&variables);
                 in_while = 0;
                 Bracket_Operator(&tokens);
