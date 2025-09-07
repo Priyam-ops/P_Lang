@@ -52,7 +52,7 @@ y--
 
 // String operations
 greeting is "Hello, "
-message is greeting + name
+message is greeting+name
 show message
 
 // Boolean operations

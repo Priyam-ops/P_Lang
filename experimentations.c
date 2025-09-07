@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <conio.h>
 
 typedef struct Node {
     int data;                  // Encoded token or number
@@ -52,98 +52,156 @@ void assignment(int token, char symbol[100], Vr **variables) {
 void arithmetic(Node** head) {
     Node* current = *head;
     while (current) {
-        if (current->data == -9) {
+        if (current->data == -9) {  // Division operator
             int prev , next;
             prev = next = 0;
-            if (current->prev->data > 0) {
+            if (current->prev && current->prev->data > 0) {
                 prev = current->prev->data;
             }
-            if (current->next->data > 0) {
+            if (current->next && current->next->data > 0) {
                 next = current->next->data;
             }
+            
             if (next == 0) {
                 printf("Division by zero error\n");
-                current = current->next;
+                // Replace with error value (0) instead of leaving broken nodes
+                Node *new = malloc(sizeof(Node));
+                new->text = NULL;
+                new->data = 0;  // Set result to 0 for division by zero
+                new->prev = current->prev ? current->prev->prev : NULL;
+                new->next = current->next ? current->next->next : NULL;
+                
+                if (new->prev) {
+                    new->prev->next = new;
+                }
+                if (new->next) {
+                    new->next->prev = new;
+                }
+                
+                // Update head if necessary
+                if (current->prev && current->prev->prev == NULL) {
+                    *head = new;
+                }
+                
+                current = new->next;
                 continue;
             }
+            
             int sum = prev / next;
             Node *new = malloc(sizeof(Node));
             new->text = NULL;
             new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
+            new->prev = current->prev ? current->prev->prev : NULL;
+            new->next = current->next ? current->next->next : NULL;
+            
+            if (new->prev) {
+                new->prev->next = new;
+            }
+            if (new->next) {
+                new->next->prev = new;
+            }
+            
+            // Update head if necessary
+            if (current->prev && current->prev->prev == NULL) {
+                *head = new;
+            }
         }
         current = current->next;
     }
+    
     current = *head;
     while (current) {
-        if (current->data == -8) {
+        if (current->data == -8) {  // Multiplication
             int prev , next;
             prev = next = 0;
-            if (current->prev->data > 0) {
+            if (current->prev && current->prev->data > 0) {
                 prev = current->prev->data;
             }
-            if (current->next->data > 0) {
+            if (current->next && current->next->data > 0) {
                 next = current->next->data;
             }
             int sum = prev *  next;
             Node *new = malloc(sizeof(Node));
             new->text = NULL;
             new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
+            new->prev = current->prev ? current->prev->prev : NULL;
+            new->next = current->next ? current->next->next : NULL;
+            
+            if (new->prev) {
+                new->prev->next = new;
+            }
+            if (new->next) {
+                new->next->prev = new;
+            }
+            
+            // Update head if necessary
+            if (current->prev && current->prev->prev == NULL) {
+                *head = new;
+            }
         }
         current = current->next;
     }
     current = *head;
     while (current) {
-        if (current->data == -6) {
+        if (current->data == -6) {  // Addition
             int prev , next;
             prev = next = 0;
-            if (current->prev->data > 0) {
+            if (current->prev && current->prev->data > 0) {
                 prev = current->prev->data;
             }
-            if (current->next->data > 0) {
+            if (current->next && current->next->data > 0) {
                 next = current->next->data;
             }
             int sum = prev +  next;
             Node *new = malloc(sizeof(Node));
             new->text = NULL;
             new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
+            new->prev = current->prev ? current->prev->prev : NULL;
+            new->next = current->next ? current->next->next : NULL;
+            
+            if (new->prev) {
+                new->prev->next = new;
+            }
+            if (new->next) {
+                new->next->prev = new;
+            }
+            
+            // Update head if necessary
+            if (current->prev && current->prev->prev == NULL) {
+                *head = new;
+            }
         }
         current = current->next;
     }
     current = *head;
     while (current) {
-        if (current->data == -7) {
+        if (current->data == -7) {  // Subtraction
             int prev , next;
             prev = next = 0;
-            if (current->prev->data > 0) {
+            if (current->prev && current->prev->data > 0) {
                 prev = current->prev->data;
             }
-            if (current->next->data > 0) {
+            if (current->next && current->next->data > 0) {
                 next = current->next->data;
             }
             int sum = prev -  next;
             Node *new = malloc(sizeof(Node));
             new->text = NULL;
             new->data = sum;
-            new->prev = current->prev->prev;
-            new->next = current->next->next;
-            current->prev->prev->next = new;
-            if (current->next->next != NULL)
-                current->next->next->prev = new;
+            new->prev = current->prev ? current->prev->prev : NULL;
+            new->next = current->next ? current->next->next : NULL;
+            
+            if (new->prev) {
+                new->prev->next = new;
+            }
+            if (new->next) {
+                new->next->prev = new;
+            }
+            
+            // Update head if necessary
+            if (current->prev && current->prev->prev == NULL) {
+                *head = new;
+            }
         }
         current = current->next;
     }
@@ -372,8 +430,8 @@ void Sundowner(Node** head)
 }
 
 int Sam(char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--"};
-    int num_tokens = 26;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--",/*26*/"until"};
+    int num_tokens = 27;
     char number[] = "0123456789";
     if (command[strlen(command)-1] == '+' && command[strlen(command)-2] == '+') {
         command[strlen(command)-2] = '\0';
@@ -521,7 +579,19 @@ Node* Jack(const char *command, Vr **variables) {
                     input = 0;
                     Vr *new = malloc(sizeof(Vr));
                     strcpy(new->symbol, token);
-                    scanf("%d", &new->value);
+                    
+                    // Flush output and get user input properly
+                    printf("Enter value for %s: ", token);
+                    fflush(stdout);
+                    
+                    // Use direct console input to avoid redirection issues
+                    char input_buffer[100];
+                    if (fgets(input_buffer, sizeof(input_buffer), stdin)) {
+                        new->value = atoi(input_buffer);
+                    } else {
+                        new->value = 0;
+                    }
+                    
                     new->code = (*variables)->value;
                     (*variables)->value--;
 
@@ -659,8 +729,43 @@ Node* show(Node* head)
     return head;
 }
 
+// Function to read entire file content preserving all newlines and tabs
+char* read_entire_file(const char* filename) {
+    FILE *file = fopen(filename, "rb");  // Binary mode preserves all characters
+    if (!file) {
+        printf("Error opening file: %s\n", filename);
+        return NULL;
+    }
+    
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    if (file_size <= 0) {
+        printf("Error: File is empty or invalid size\n");
+        fclose(file);
+        return NULL;
+    }
+    
+    // Allocate buffer for entire file + null terminator
+    char *content = malloc(file_size + 1);
+    if (!content) {
+        printf("Error: Memory allocation failed\n");
+        fclose(file);
+        return NULL;
+    }
+    
+    // Read entire file
+    size_t bytes_read = fread(content, 1, file_size, file);
+    content[bytes_read] = '\0';  // Null terminate
+    
+    fclose(file);
+    return content;  // Caller must free() this memory
+}
 
-int main() {
+
+int main(int argc, char *argv[]) {
 
     int exit_status = 0;
     int exited_if = 0;
@@ -669,41 +774,27 @@ int main() {
     Vr *variables = malloc(sizeof(Vr));
     variables->next = NULL;
     variables->value = -50;
+    
     char wtf[100];
-    scanf("%s", wtf);
-    FILE *file = fopen(wtf, "r");
-    if (file == NULL) {
-        printf("Error opening file\n");
-        return 1;  // or handle the error
-    }
-    // Get file size
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    
-    // Allocate buffer for entire file content
-    char *full_content = malloc(file_size + 1);
-    if (full_content == NULL) {
-        printf("Memory allocation failed\n");
-        fclose(file);
-        return 1;
-    } 
-
-    // Read entire file content
-    fread(full_content, 1, file_size, file);
-    full_content[file_size] = '\0';
-    fclose(file);
-    
-    // Replace newlines with spaces to combine all lines
-    for (int i = 0; i < file_size; i++) {
-        if (full_content[i] == '\n') {
-            full_content[i] = ' ';
-        }
+    if (argc > 1) {
+        // Filename provided as command line argument
+        strcpy(wtf, argv[1]);
+    } else {
+        // Filename provided via stdin (for backward compatibility)
+        printf("Enter filename: ");
+        fflush(stdout);
+        scanf("%s", wtf);
     }
     
-    // Process the entire content as one unit
+    
+    // Read entire file content preserving all formatting
+    char *full_content = read_entire_file(wtf);
+    if (!full_content) {
+        return 1;  // Error already printed by read_entire_file
+    }
+    
+    // Process the entire content as one unit (preserves \n and \t)
     Node *tokens = Jack(full_content, &variables);
-    
     Bracket_Operator(&tokens);
     arithmetic(&tokens);
     Sundowner(&tokens);
@@ -716,8 +807,8 @@ int main() {
                 case -2: printf("\e[1;1H\e[2J");                                       break; // clear
                 case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
                 case -4: printf("Exiting...Bye!!\n"); 
-                        free(full_content);
-                        // Free memory
+                        free(full_content);  // Clean up memory
+                        // Free remaining tokens
                         while (tokens) {
                             Node* nxt = tokens->next;
                             free(tokens);
@@ -746,9 +837,7 @@ int main() {
                             exited_if = 0;
                             cur = cur->next;
                             continue;
-                        } else {
-                            exit_status = 1;
-                        }
+                        } else exit_status = 1;
             }
         }
         
@@ -759,11 +848,21 @@ int main() {
         }
         if (in_while && cur->next == NULL)
         {   
+            // Re-process the content for while loop
+            Node* temp_tokens = tokens;
             tokens = Jack(full_content, &variables);
             in_while = 0;
             Bracket_Operator(&tokens);
             arithmetic(&tokens);
             Sundowner(&tokens);
+            
+            // Free old tokens
+            while (temp_tokens) {
+                Node* nxt = temp_tokens->next;
+                free(temp_tokens);
+                temp_tokens = nxt;
+            }
+            
             cur = tokens;
             continue;
         }

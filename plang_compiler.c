@@ -656,6 +656,11 @@ Node* show(Node* head)
     head = head->next;
     if (head->data == -666)
     {
+        for (int i = 0; head->text[i] != '\0'; i++) {
+            if (head->text[i] == '_') {
+                head->text[i] = ' ';
+            }
+        }
         printf("%s\n", head->text);
     }
     else if (head->data == -19){

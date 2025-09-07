@@ -21,7 +21,7 @@ if not exist "%SOURCE_FILE%" (
 )
 
 :: Step 1: Ensure the PLang interpreter is built
-if not exist "plang_compiler.exe" goto :build_interpreter
+goto :build_interpreter
 
 :: Check if source is newer than executable (basic check)
 for %%i in ("plang_compiler.c") do set SOURCE_TIME=%%~ti

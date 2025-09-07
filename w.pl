@@ -1,6 +1,6 @@
 clear
 show Enter_the_first_number:
-take a
+take a 
 show Enter_the_second_number:
 take b
 show Do_whatever_you_want:
