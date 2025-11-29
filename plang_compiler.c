@@ -19,7 +19,7 @@ typedef struct Variable{
 
 void assignment(int token, char symbol[100], Vr **variables) {
     Vr *current = *variables;
-    while(current)
+    while(current != NULL)
     {   
         if(strcmp(current->symbol, symbol) == 0)
         {
@@ -153,11 +153,11 @@ void arithmetic(Node** head) {
 void Bracket_Operator(Node** head)
 {
     Node *current = *head;
-    while (current)
+    while (current != NULL)
     {
         if (current->data == -10) {  // '('
             Node *temp = current->next;
-            while (temp && temp->data != -11) { 
+            while (temp != NULL && temp->data != -11) { 
                 temp = temp->next;
             }
             if (temp == NULL) {
@@ -166,16 +166,19 @@ void Bracket_Operator(Node** head)
             }
             else{
                 Node *pointer = NULL;
-                if (temp->next!=NULL)
+                if (temp->next != NULL)
                 {
                     pointer = temp->next;
                     temp->next = NULL;
                 }
                 arithmetic(&current);
-                while (current->next != NULL) {
-                    current = current->next;
+                Node *tail = current;
+                while (tail->next != NULL) {
+                    tail = tail->next;
                 }
-                current->next = pointer; // Link the rest of the list
+                tail->next = pointer; // Link the rest of the list
+                current = pointer; // Move to next segment
+                continue;
             }
         }
             
@@ -372,8 +375,8 @@ void Sundowner(Node** head)
 }
 
 int Sam(char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--",/*26*/"until"};
-    int num_tokens = 27;
+    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--",/*26*/"until",/*27*/"endwhile",/*28*/"enduntil"};
+    int num_tokens = 29;
     char number[] = "0123456789";
     if (command[strlen(command)-1] == '+' && command[strlen(command)-2] == '+') {
         command[strlen(command)-2] = '\0';
@@ -678,96 +681,197 @@ Node* show(Node* head)
 
 
 int main(int argc, char *argv[]) {
+    int in_loop = 0;
+    char loop_line[300];
+    int loop_type = 0; // -21=while, -26=until
 
-    int exit_status = 0;
-    int exited_if = 0;
-    int in_while = 0;
+    int skip_execution = 0;
     int if_true = 1;
+
     Vr *variables = malloc(sizeof(Vr));
-    variables->next = NULL;
     variables->value = -50;
-    
-    char wtf[100];
+    variables->next = NULL;
+
+    char filename[200];
+
+    // Filename input
     if (argc > 1) {
-        // Filename provided as command line argument
-        strcpy(wtf, argv[1]);
+        strcpy(filename, argv[1]);
     } else {
-        // Filename provided via stdin (for backward compatibility)
         printf("Enter filename: ");
-        fflush(stdout);
-        scanf("%s", wtf);
+        scanf("%199s", filename);
     }
-    
-    FILE *file = fopen(wtf, "r");
-    if (file == NULL) {
-        printf("Error opening file\n");
-        return 1;  // or handle the error
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        printf("Error opening file!\n");
+        return 1;
     }
-    char buffer[100];  // buffer to hold each line
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+
+    char buffer[300];
+    long loop_body_start = 0;
+
+    // Main interpreter loop
+    while (1) {
+        if (!fgets(buffer, sizeof(buffer), file)) break;
+
         buffer[strcspn(buffer, "\n")] = 0;
-        Node *tokens = Jack(buffer,&variables);
+
+        Node *tokens = Jack(buffer, &variables);
         Bracket_Operator(&tokens);
         arithmetic(&tokens);
         Sundowner(&tokens);
+
         Node *cur = tokens;
+
         while (cur) {
+            // COMMAND TOKENS
             if (cur->data <= -1) {
                 switch (cur->data) {
-                    case -1: cur=show(cur);                                                                       break; // show
-                    case -2: printf("\e[1;1H\e[2J");                                       break; // clear
-                    case -3: printf("Help: Available commands are show, clear, help, exit.\n");                      break; // help
-                    case -4: printf("Exiting...Bye!!\n"); return 0;               break; // exit
-                    case -13:if (doc(&cur)){ 
-                                if_true = 0;
-                                cur = cur->next; 
-                                continue; 
+
+                    case -1:     // show
+                        cur = show(cur);
+                        continue;
+
+                    case -2:     // clear
+                        printf("\e[1;1H\e[2J");
+                        break;
+
+                    case -3:     // help
+                        printf("Help: show, clear, help, exit\n");
+                        break;
+
+                    case -4:     // exit
+                        printf("Exiting...\n");
+                        fclose(file);
+                        return 0;
+
+                    // IF
+                    case -13:
+                        if (doc(&cur)) {
+                            if_true = 1;
+                        } else {
+                            if_true = 0;
+                            skip_execution = 1;
+                        }
+                        break;
+
+                    // ENDIF
+                    case -14:
+                        skip_execution = 0;
+                        if_true = 1;
+                        break;
+
+                    // WHILE
+                    case -21:
+                        if (doc(&cur)) {
+                            in_loop = 1;
+                            loop_type = -21;
+                            loop_body_start = ftell(file);   // Save position after reading while line
+                            strcpy(loop_line, buffer);       // Save condition
+                        } else {
+                            skip_execution = 1;              // Skip loop body
+                        }
+                        break;
+
+                    // ENDWHILE
+                    case -27:
+                        if (in_loop && loop_type == -21) {
+                            // Re-evaluate condition
+                            Node *cond = Jack(loop_line, &variables);
+                            Bracket_Operator(&cond);
+                            arithmetic(&cond);
+                            Sundowner(&cond);
+
+                            int truth = doc(&cond);
+
+                            // free cond tokens
+                            while (cond) { Node *n = cond->next; free(cond); cond = n; }
+
+                            if (truth == 1) {
+                                // Loop again - go back to start of loop body
+                                fseek(file, loop_body_start, SEEK_SET);
+                                // Don't free tokens yet, we'll continue
+                                while (tokens) {
+                                    Node *n = tokens->next;
+                                    free(tokens);
+                                    tokens = n;
+                                }
+                                skip_execution = 0;
+                                goto continue_main_loop;
                             } else {
-                                exit_status = 1;
+                                // Exit loop
+                                in_loop = 0;
+                                skip_execution = 0;
                             }
-                            break; 
-                    
-                    case -21: if (doc(&cur)){ 
-                                in_while = 1;
-                                cur = cur->next; 
-                                continue; 
+                        } else if (skip_execution) {
+                            skip_execution = 0;
+                        }
+                        break;
+
+                    // UNTIL
+                    case -26:
+                        if (!doc(&cur)) {
+                            in_loop = 1;
+                            loop_type = -26;
+                            loop_body_start = ftell(file);   // Save position after reading until line
+                            strcpy(loop_line, buffer);       // Save condition
+                        } else {
+                            skip_execution = 1;              // Skip loop body
+                        }
+                        break;
+
+                    // ENDUNTIL
+                    case -28:
+                        if (in_loop && loop_type == -26) {
+                            // Re-evaluate condition
+                            Node *cond = Jack(loop_line, &variables);
+                            Bracket_Operator(&cond);
+                            arithmetic(&cond);
+                            Sundowner(&cond);
+
+                            int truth = doc(&cond);
+
+                            // free cond tokens
+                            while (cond) { Node *n = cond->next; free(cond); cond = n; }
+
+                            if (truth == 0) {
+                                // Loop again - go back to start of loop body
+                                fseek(file, loop_body_start, SEEK_SET);
+                                // Don't free tokens yet, we'll continue
+                                while (tokens) {
+                                    Node *n = tokens->next;
+                                    free(tokens);
+                                    tokens = n;
+                                }
+                                skip_execution = 0;
+                                goto continue_main_loop;
                             } else {
-                                exit_status = 1;
+                                // Exit loop
+                                in_loop = 0;
+                                skip_execution = 0;
                             }
-                            break;
-                    case -14:if (if_true) {
-                                if_true = 1; 
-                                exited_if = 0;
-                                cur = cur->next;
-                                continue;
-                            } else exit_status = 1;
+                        } else if (skip_execution) {
+                            skip_execution = 0;
+                        }
+                        break;
                 }
             }
-            
-            if (exit_status) {
-                exit_status = 0;
-                exited_if = 1;
-                break;
-            }
-            if (in_while && cur->next == NULL)
-            {   
-                printf("Fuck off!!");
-                tokens = Jack(buffer,&variables);
-                in_while = 0;
-                Bracket_Operator(&tokens);
-                arithmetic(&tokens);
-                Sundowner(&tokens);
-                cur = tokens;
-                continue;
-            }
+
             cur = cur->next;
         }
 
-        // Free memory
+        // free tokens of current line
         while (tokens) {
-            Node* nxt = tokens->next;
+            Node *n = tokens->next;
             free(tokens);
-            tokens = nxt;
+            tokens = n;
         }
+
+        skip_execution = 0;
+        continue_main_loop:;
     }
+
+    fclose(file);
+    return 0;
 }
