@@ -142,6 +142,28 @@ counter--
 | `<=`     | Less than or equal to    |
 | `!=`     | Not equal to             |
 
+### Logical Operators
+
+| Operator | Description    | Example                |
+|----------|----------------|------------------------|
+| `NOT`    | Logical NOT    | `result is NOT flag`   |
+| `AND`    | Logical AND    | `result is x AND y`    |
+| `OR`     | Logical OR     | `result is x OR y`     |
+
+**Example:**
+```plang
+flag1 is yes
+flag2 is no
+result is flag1 AND flag2
+show result
+
+result is flag1 OR flag2
+show result
+
+result is NOT flag1
+show result
+```
+
 ### Conditional Statements
 
 ```plang
