@@ -51,7 +51,7 @@ show ---_Loop_Demo_---
 i is 1
 while i <= 5 = yes
     show i
-    i++
+    i ++
 endwhile
 
 show ---_Conditionals_---
