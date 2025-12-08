@@ -32,14 +32,13 @@ void assignment(int token, char symbol[100], Vr **variables) {
     new->value = token;
 
     strcpy(new->symbol, symbol);
-    new->code = (*variables)->value;  // Check: is this needed?
+    new->code = (*variables)->value;
     (*variables)->value--;
 
     new->next = NULL;
 
     current = *variables;
     if (current == NULL || current->next == NULL) {
-        // First real variable
         (*variables)->next = new;
     } else {
         while (current->next != NULL) {
@@ -176,12 +175,133 @@ void Bracket_Operator(Node** head)
                 while (tail->next != NULL) {
                     tail = tail->next;
                 }
-                tail->next = pointer; // Link the rest of the list
-                current = pointer; // Move to next segment
+                tail->next = pointer;
+                current = pointer;
                 continue;
             }
         }
             
+        current = current->next;
+    }
+}
+
+// NEW: Logical operators function
+void Logical_Operators(Node** head) {
+    // Process NOT operator first (unary, highest precedence)
+    Node *current = *head;
+    while (current) {
+        if (current->data == -31) {  // NOT operator
+            if (current->next != NULL) {
+                int next_val = 0;
+                if (current->next->data == -19) {  // yes
+                    next_val = 1;
+                } else if (current->next->data == -20) {  // no
+                    next_val = 0;
+                } else if (current->next->data > 0) {
+                    next_val = (current->next->data != 0) ? 1 : 0;
+                }
+                
+                int result = !next_val;
+                int result_token = result ? -19 : -20;
+                
+                Node *new = malloc(sizeof(Node));
+                new->text = NULL;
+                new->data = result_token;
+                new->prev = current->prev;
+                new->next = current->next->next;
+                
+                if (current->prev != NULL)
+                    current->prev->next = new;
+                if (current->next->next != NULL)
+                    current->next->next->prev = new;
+            }
+        }
+        current = current->next;
+    }
+    
+    // Process AND operator
+    current = *head;
+    while (current) {
+        if (current->data == -29) {  // AND operator
+            if (current->prev != NULL && current->next != NULL) {
+                int prev_val = 0, next_val = 0;
+                
+                // Get previous value
+                if (current->prev->data == -19) {  // yes
+                    prev_val = 1;
+                } else if (current->prev->data == -20) {  // no
+                    prev_val = 0;
+                } else if (current->prev->data > 0) {
+                    prev_val = (current->prev->data != 0) ? 1 : 0;
+                }
+                
+                // Get next value
+                if (current->next->data == -19) {  // yes
+                    next_val = 1;
+                } else if (current->next->data == -20) {  // no
+                    next_val = 0;
+                } else if (current->next->data > 0) {
+                    next_val = (current->next->data != 0) ? 1 : 0;
+                }
+                
+                int result = prev_val && next_val;
+                int result_token = result ? -19 : -20;
+                
+                Node *new = malloc(sizeof(Node));
+                new->text = NULL;
+                new->data = result_token;
+                new->prev = current->prev->prev;
+                new->next = current->next->next;
+                
+                if (current->prev->prev != NULL)
+                    current->prev->prev->next = new;
+                if (current->next->next != NULL)
+                    current->next->next->prev = new;
+            }
+        }
+        current = current->next;
+    }
+    
+    // Process OR operator
+    current = *head;
+    while (current) {
+        if (current->data == -30) {  // OR operator
+            if (current->prev != NULL && current->next != NULL) {
+                int prev_val = 0, next_val = 0;
+                
+                // Get previous value
+                if (current->prev->data == -19) {  // yes
+                    prev_val = 1;
+                } else if (current->prev->data == -20) {  // no
+                    prev_val = 0;
+                } else if (current->prev->data > 0) {
+                    prev_val = (current->prev->data != 0) ? 1 : 0;
+                }
+                
+                // Get next value
+                if (current->next->data == -19) {  // yes
+                    next_val = 1;
+                } else if (current->next->data == -20) {  // no
+                    next_val = 0;
+                } else if (current->next->data > 0) {
+                    next_val = (current->next->data != 0) ? 1 : 0;
+                }
+                
+                int result = prev_val || next_val;
+                int result_token = result ? -19 : -20;
+                
+                Node *new = malloc(sizeof(Node));
+                new->text = NULL;
+                new->data = result_token;
+                new->prev = current->prev->prev;
+                new->next = current->next->next;
+                
+                if (current->prev->prev != NULL)
+                    current->prev->prev->next = new;
+                if (current->next->next != NULL)
+                    current->next->next->prev = new;
+            }
+        }
         current = current->next;
     }
 }
@@ -375,8 +495,17 @@ void Sundowner(Node** head)
 }
 
 int Sam(char *command, Vr **variables) {
-    const char *tokens[] = {/*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",/*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",/*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",/*25*/"--",/*26*/"until",/*27*/"endwhile",/*28*/"enduntil"};
-    int num_tokens = 29;
+    const char *tokens[] = {
+        /*0*/"",/*1*/"show", /*2*/"clear", /*3*/"help", /*4*/"exit",
+        /*5*/"is",/*6*/"+", /*7*/"-", /*8*/"*", /*9*/"/", 
+        /*10*/"(",/*11*/")",/*12*/"take",/*13*/"if",/*14*/"else",
+        /*15*/"=",/*16*/">",/*17*/"<",/*18*/"!", /*19*/"yes", 
+        /*20*/"no",/*21*/"while",/*22*/"<=",/*23*/">=",/*24*/"++",
+        /*25*/"--",/*26*/"until",/*27*/"endwhile",/*28*/"enduntil",
+        /*29*/"&",/*30*/"|",/*31*/"not"
+    };
+    int num_tokens = 32; 
+    
     char number[] = "0123456789";
     if (command[strlen(command)-1] == '+' && command[strlen(command)-2] == '+') {
         command[strlen(command)-2] = '\0';
@@ -400,22 +529,19 @@ int Sam(char *command, Vr **variables) {
         }
     }
 
-    // Check for variable assignment
-
-
-
     Vr *current = *variables;
     while (current != NULL) {
         if (strcmp(command, current->symbol) == 0) {
-            return current->value; // Return the value of the variable
+            return current->value;
         }
         current = current->next;
     }
-    // Match known tokens
+    
     for (int i = 0; i < num_tokens; i++) {
         if (strcmp(command, tokens[i]) == 0)
-            return i*(-1);  // return token code [0..8]
+            return i*(-1);
     }
+    
     int is_num;
     int c = 0; 
     for (int i = 0; i < strlen(command); i++) {
@@ -435,8 +561,8 @@ int Sam(char *command, Vr **variables) {
         }
     }
     if (c != 666)
-        return c; // negative for our encoding
-    return 666; // Unknown command
+        return c;
+    return 666;
 }
 
 Node* Jack(const char *command, Vr **variables) {
@@ -525,11 +651,9 @@ Node* Jack(const char *command, Vr **variables) {
                     Vr *new = malloc(sizeof(Vr));
                     strcpy(new->symbol, token);
                     
-                    // Flush output and get user input properly
                     printf("Enter value for %s: ", token);
                     fflush(stdout);
                     
-                    // Use direct console input to avoid redirection issues
                     char input_buffer[100];
                     if (fgets(input_buffer, sizeof(input_buffer), stdin)) {
                         new->value = atoi(input_buffer);
@@ -564,7 +688,7 @@ Node* Jack(const char *command, Vr **variables) {
                     assign = 1;
                 }
                 
-                if ((assign && val > 0) || (assign && val == -666))  // If it's an assignment
+                if ((assign && val > 0) || (assign && val == -666))
                 {
                     assign = 0;
                     looking_for_operator = 1;
@@ -629,7 +753,7 @@ Node* Jack(const char *command, Vr **variables) {
                 for (int k = 0; k < j; k++) {
                     last_symbol[k] = token[k];
                 }
-                last_symbol[j] = '\0';  // Store the last symbol for assignment
+                last_symbol[j] = '\0';
                 j = 0;
             }
             if (c == '\0') break;
@@ -683,7 +807,7 @@ Node* show(Node* head)
 int main(int argc, char *argv[]) {
     int in_loop = 0;
     char loop_line[300];
-    int loop_type = 0; // -21=while, -26=until
+    int loop_type = 0;
 
     int skip_execution = 0;
     int if_true = 1;
@@ -694,7 +818,6 @@ int main(int argc, char *argv[]) {
 
     char filename[200];
 
-    // Filename input
     if (argc > 1) {
         strcpy(filename, argv[1]);
     } else {
@@ -711,7 +834,6 @@ int main(int argc, char *argv[]) {
     char buffer[300];
     long loop_body_start = 0;
 
-    // Main interpreter loop
     while (1) {
         if (!fgets(buffer, sizeof(buffer), file)) break;
 
@@ -721,32 +843,31 @@ int main(int argc, char *argv[]) {
         Bracket_Operator(&tokens);
         arithmetic(&tokens);
         Sundowner(&tokens);
+        Logical_Operators(&tokens);  
 
         Node *cur = tokens;
 
         while (cur) {
-            // COMMAND TOKENS
             if (cur->data <= -1) {
                 switch (cur->data) {
 
-                    case -1:     // show
+                    case -1:
                         cur = show(cur);
                         continue;
 
-                    case -2:     // clear
+                    case -2:
                         printf("\e[1;1H\e[2J");
                         break;
 
-                    case -3:     // help
+                    case -3:
                         printf("Help: show, clear, help, exit\n");
                         break;
 
-                    case -4:     // exit
+                    case -4:
                         printf("Exiting...\n");
                         fclose(file);
                         return 0;
 
-                    // IF
                     case -13:
                         if (doc(&cur)) {
                             if_true = 1;
@@ -756,34 +877,31 @@ int main(int argc, char *argv[]) {
                         }
                         break;
 
-                    // ENDIF
                     case -14:
                         skip_execution = 0;
                         if_true = 1;
                         break;
 
-                    // WHILE
                     case -21:
                         if (doc(&cur)) {
                             in_loop = 1;
                             loop_type = -21;
-                            loop_body_start = ftell(file);   // Save position after reading while line
-                            strcpy(loop_line, buffer);       // Save condition
+                            loop_body_start = ftell(file);
+                            strcpy(loop_line, buffer);
                         } else {
-                            skip_execution = 1;              // Skip loop body
+                            skip_execution = 1;
                         }
                         break;
 
-                    // ENDWHILE
                     case -27:
                         if (in_loop && loop_type == -21) {
-                            // Re-evaluate condition
                             Node *cond = Jack(loop_line, &variables);
                             Bracket_Operator(&cond);
                             arithmetic(&cond);
                             Sundowner(&cond);
+                            Logical_Operators(&cond);  
 
-                            int truth = doc(&cond);
+                             int truth = doc(&cond);
 
                             // free cond tokens
                             while (cond) { Node *n = cond->next; free(cond); cond = n; }
