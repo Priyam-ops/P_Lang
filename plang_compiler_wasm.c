@@ -99,7 +99,8 @@ void assignment(int token, char symbol[100], Vr **variables) {
     }
     Vr *new = malloc(sizeof(Vr));
     new->value = token;
-    strcpy(new->symbol, symbol);
+    strncpy(new->symbol, symbol, 99);
+    new->symbol[99] = '\0';
     new->code = (*variables)->value;
     (*variables)->value--;
     new->next = NULL;
@@ -582,9 +583,10 @@ Node* Jack(char *line, Vr **variables) {
                         int len1 = strlen(imp_token);
                         int len2 = strlen(token);
                         if (len1 + len2 + 2 < 100) {
-                            strcpy(new_string, imp_token);
-                            strcat(new_string, " ");
-                            strcat(new_string, token);
+                            strncpy(new_string, imp_token, 99);
+                            new_string[99] = '\0';
+                            strncat(new_string, " ", 99 - strlen(new_string));
+                            strncat(new_string, token, 99 - strlen(new_string));
                             assignment(val, new_string, variables);
                         }
                     }
@@ -594,7 +596,8 @@ Node* Jack(char *line, Vr **variables) {
                 if (val == -666) {
                     text = malloc(strlen(token) + 1);
                     if (text) {
-                        strcpy(text, token);
+                        strncpy(text, token, strlen(token));
+                        text[strlen(token)] = '\0';
                         Vr *current = *variables;
                         while (current != NULL) {
                             int match = 1;
@@ -750,7 +753,8 @@ const char* run_plang(const char* code) {
         }
         
         char buffer[300];
-        strcpy(buffer, lines[current_line]);
+        strncpy(buffer, lines[current_line], 299);
+        buffer[299] = '\0';
         
         // Remove newline
         buffer[strcspn(buffer, "\n")] = 0;
@@ -806,7 +810,8 @@ const char* run_plang(const char* code) {
                                 in_loop = 1;
                                 loop_type = -21;
                                 loop_start_line = current_line;
-                                strcpy(loop_line, buffer);
+                                strncpy(loop_line, buffer, 299);
+                                loop_line[299] = '\0';
                             } else {
                                 skip_execution = 1;
                             }
@@ -848,7 +853,8 @@ const char* run_plang(const char* code) {
                                 in_loop = 1;
                                 loop_type = -26;
                                 loop_start_line = current_line;
-                                strcpy(loop_line, buffer);
+                                strncpy(loop_line, buffer, 299);
+                                loop_line[299] = '\0';
                             } else {
                                 skip_execution = 1;
                             }
