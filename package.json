@@ -1,0 +1,28 @@
+{
+  "name": "plang-compiler",
+  "version": "1.0.0",
+  "description": "P_Lang - A programming language faster than C, running in browser via WebAssembly",
+  "scripts": {
+    "build:wasm": "emcc plang_compiler_wasm.c -o docs/plang.js -s WASM=1 -s EXPORTED_FUNCTIONS='[\"_init_compiler\", \"_run_plang\", \"_clear_output\", \"_get_output\", \"_malloc\", \"_free\"]' -s EXPORTED_RUNTIME_METHODS='[\"ccall\", \"cwrap\", \"allocateUTF8\", \"UTF8ToString\"]' -s ALLOW_MEMORY_GROWTH=1 -O2",
+    "build": "npm run build:wasm",
+    "dev": "npx serve docs",
+    "start": "npx serve docs"
+  },
+  "keywords": [
+    "programming-language",
+    "compiler",
+    "webassembly",
+    "wasm",
+    "plang"
+  ],
+  "author": "Priyam-ops",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Priyam-ops/P_Lang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Priyam-ops/P_Lang/issues"
+  },
+  "homepage": "https://github.com/Priyam-ops/P_Lang#readme"
+}

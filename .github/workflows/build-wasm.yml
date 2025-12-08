@@ -1,0 +1,67 @@
+name: Build WebAssembly
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 'latest'
+        
+    - name: Verify Emscripten installation
+      run: |
+        emcc --version
+        
+    - name: Build WebAssembly
+      run: |
+        emcc plang_compiler_wasm.c -o docs/plang.js \
+          -s WASM=1 \
+          -s EXPORTED_FUNCTIONS='["_init_compiler", "_run_plang", "_clear_output", "_get_output", "_malloc", "_free"]' \
+          -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "allocateUTF8", "UTF8ToString"]' \
+          -s ALLOW_MEMORY_GROWTH=1 \
+          -O2
+          
+    - name: List generated files
+      run: |
+        ls -lh docs/
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: wasm-build
+        path: |
+          docs/plang.js
+          docs/plang.wasm
+        retention-days: 30
+        
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+    - name: Commit built WASM files
+      run: |
+        git add docs/plang.js docs/plang.wasm || true
+        git diff --staged --quiet || git commit -m "Build: Update WebAssembly files [skip ci]"
+        
+    - name: Push changes
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
