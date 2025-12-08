@@ -130,17 +130,17 @@ show Done!`;
 
     // Fallback JavaScript interpreter (basic implementation)
     function runPLangJS(code) {
+        const MAX_ITERATIONS = 10000; // Maximum iterations to prevent infinite loops
         let output = [];
         let variables = {};
         const lines = code.split('\n');
         
         let i = 0;
         let loopStack = [];
-        let maxIterations = 10000;
         let iterations = 0;
         let skipExecution = false;
         
-        while (i < lines.length && iterations++ < maxIterations) {
+        while (i < lines.length && iterations++ < MAX_ITERATIONS) {
             let line = lines[i].trim();
             if (!line) { i++; continue; }
             
@@ -319,7 +319,7 @@ show Done!`;
             i++;
         }
         
-        if (iterations >= maxIterations) {
+        if (iterations >= MAX_ITERATIONS) {
             output.push('[Warning: Execution stopped - possible infinite loop]');
         }
         

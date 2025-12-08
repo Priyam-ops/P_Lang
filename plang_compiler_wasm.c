@@ -65,6 +65,27 @@ void Sundowner(Node** head);
 Node* Jack(char *line, Vr **variables);
 int doc(Node** head);
 Node* show(Node* head);
+void free_node(Node* node);
+void free_node_list(Node* head);
+
+// Free a single node and its text
+void free_node(Node* node) {
+    if (node) {
+        if (node->text) {
+            free(node->text);
+        }
+        free(node);
+    }
+}
+
+// Free a list of nodes
+void free_node_list(Node* head) {
+    while (head) {
+        Node *next = head->next;
+        free_node(head);
+        head = next;
+    }
+}
 
 // Assignment function
 void assignment(int token, char symbol[100], Vr **variables) {
@@ -558,34 +579,41 @@ Node* Jack(char *line, Vr **variables) {
                     looking_for_operator = 1;
                     if (val == -666) {
                         char new_string[100];
-                        strcpy(new_string, imp_token);
-                        strcat(new_string, " ");
-                        strcat(new_string, token);
-                        assignment(val, new_string, variables);
+                        int len1 = strlen(imp_token);
+                        int len2 = strlen(token);
+                        if (len1 + len2 + 2 < 100) {
+                            strcpy(new_string, imp_token);
+                            strcat(new_string, " ");
+                            strcat(new_string, token);
+                            assignment(val, new_string, variables);
+                        }
                     }
                     assignment(val, imp_token, variables);
                 }
                 
                 if (val == -666) {
-                    text = strdup(token);
-                    Vr *current = *variables;
-                    while (current != NULL) {
-                        int match = 1;
-                        int m_ind = 0;
-                        for (int k = 0; token[k] != '\0'; k++) {
-                            if(current->symbol[k] != token[k]){
-                                match = 0;
-                                m_ind = k+1;
+                    text = malloc(strlen(token) + 1);
+                    if (text) {
+                        strcpy(text, token);
+                        Vr *current = *variables;
+                        while (current != NULL) {
+                            int match = 1;
+                            int m_ind = 0;
+                            for (int k = 0; token[k] != '\0'; k++) {
+                                if(current->symbol[k] != token[k]){
+                                    match = 0;
+                                    m_ind = k+1;
+                                }
                             }
-                        }
-                        m_ind += 2;
-                        if (match) {
-                            for (int k = m_ind; k < strlen(current->symbol); k++) {
-                                text[k-m_ind] = current->symbol[k];
+                            m_ind += 2;
+                            if (match) {
+                                for (int k = m_ind; k < strlen(current->symbol); k++) {
+                                    text[k-m_ind] = current->symbol[k];
+                                }
+                                text[strlen(current->symbol)-m_ind] = '\0';
                             }
-                            text[strlen(current->symbol)-m_ind] = '\0';
+                            current = current->next;
                         }
-                        current = current->next;
                     }
                 }
                 
@@ -606,7 +634,7 @@ Node* Jack(char *line, Vr **variables) {
                 }
                 last_symbol[j] = '\0';
                 j = 0;
-                text = NULL;
+                text = NULL;  // Ownership transferred to node
             }
             if (c == '\0') break;
         } else {
@@ -689,6 +717,7 @@ const char* run_plang(const char* code) {
     int loop_type = 0;
     int skip_execution = 0;
     int if_true = 1;
+    int total_iterations = 0;
     int loop_iterations = 0;
     
     // Store all lines for loop processing
@@ -697,7 +726,8 @@ const char* run_plang(const char* code) {
     char *temp_code = strdup(code);
     char *temp_line = strtok(temp_code, "\n");
     while (temp_line && line_count < 1000) {
-        strcpy(lines[line_count], temp_line);
+        strncpy(lines[line_count], temp_line, 299);
+        lines[line_count][299] = '\0';
         line_count++;
         temp_line = strtok(NULL, "\n");
     }
@@ -707,9 +737,16 @@ const char* run_plang(const char* code) {
     int loop_start_line = 0;
     
     while (current_line < line_count) {
-        if (loop_iterations++ > MAX_LOOP_ITERATIONS) {
-            web_print("[Error: Maximum loop iterations exceeded - possible infinite loop]\n");
+        if (total_iterations++ > MAX_LOOP_ITERATIONS) {
+            web_print("[Error: Maximum iterations exceeded - possible infinite loop]\n");
             break;
+        }
+        
+        // Track loop iterations separately
+        if (in_loop) {
+            loop_iterations++;
+        } else {
+            loop_iterations = 0;
         }
         
         char buffer[300];
@@ -786,19 +823,14 @@ const char* run_plang(const char* code) {
                             
                             int truth = doc(&cond);
                             
-                            while (cond) {
-                                Node *n = cond->next;
-                                free(cond);
-                                cond = n;
-                            }
+                            // Free condition nodes properly
+                            free_node_list(cond);
                             
                             if (truth == 1) {
                                 current_line = loop_start_line;
-                                while (tokens) {
-                                    Node *n = tokens->next;
-                                    free(tokens);
-                                    tokens = n;
-                                }
+                                // Free tokens properly
+                                free_node_list(tokens);
+                                tokens = NULL;
                                 skip_execution = 0;
                                 continue;
                             } else {
@@ -832,19 +864,14 @@ const char* run_plang(const char* code) {
                             
                             int truth = doc(&cond);
                             
-                            while (cond) {
-                                Node *n = cond->next;
-                                free(cond);
-                                cond = n;
-                            }
+                            // Free condition nodes properly
+                            free_node_list(cond);
                             
                             if (truth == 0) {
                                 current_line = loop_start_line;
-                                while (tokens) {
-                                    Node *n = tokens->next;
-                                    free(tokens);
-                                    tokens = n;
-                                }
+                                // Free tokens properly
+                                free_node_list(tokens);
+                                tokens = NULL;
                                 skip_execution = 0;
                                 continue;
                             } else {
@@ -860,12 +887,8 @@ const char* run_plang(const char* code) {
             cur = cur->next;
         }
         
-        // Free tokens
-        while (tokens) {
-            Node *n = tokens->next;
-            free(tokens);
-            tokens = n;
-        }
+        // Free tokens properly
+        free_node_list(tokens);
         
         skip_execution = 0;
         current_line++;
